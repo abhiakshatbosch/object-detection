@@ -217,52 +217,6 @@ void draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, object_
     cv::imshow("image", image);
 }
 
-
-int image_demo(NanoDet &detector, const char* imagepath) {
-    // const char* imagepath = "D:/Dataset/coco/val2017/*.jpg";
-
-    std::vector<cv::String> filenames;
-    cv::glob(imagepath, filenames, false);
-    int height = detector.input_size[0];
-    int width = detector.input_size[1];
-
-    for (auto img_name : filenames) {
-        cv::Mat image = cv::imread(img_name);
-        if (image.empty())
-        {
-            fprintf(stderr, "cv::imread %s failed\n", img_name);
-            return -1;
-        }
-        object_rect effect_roi;
-        cv::Mat resized_img;
-        resize_uniform(image, resized_img, cv::Size(width, height), effect_roi);
-        auto results = detector.detect(resized_img, 0.4, 0.5);
-        draw_bboxes(image, results, effect_roi);
-        cv::waitKey(0);
-
-    }
-    return 0;
-}
-
-int webcam_demo(NanoDet& detector, int cam_id) {
-    cv::Mat image;
-    cv::VideoCapture cap(cam_id);
-    int height = detector.input_size[0];
-    int width = detector.input_size[1];
-
-    while (true)
-    {
-        cap >> image;
-        object_rect effect_roi;
-        cv::Mat resized_img;
-        resize_uniform(image, resized_img, cv::Size(width, height), effect_roi);
-        auto results = detector.detect(resized_img, 0.4, 0.5);
-        draw_bboxes(image, results, effect_roi);
-        cv::waitKey(1);
-    }
-    return 0;
-}
-
 int video_demo(NanoDet& detector, const char* path) {
     cv::Mat image;
     cv::VideoCapture cap(path); 
@@ -326,35 +280,11 @@ int benchmark(NanoDet& detector) {
 
 
 int main(int argc, char** argv) {
-   if (argc != 3) {
+   if (argc != 2) {
         fprintf(stderr, "usage: %s [mode] [path]. \n For webcam mode=0, path is cam id; \n For image demo, mode=1, path=xxx/xxx/*.jpg; \n For video, mode=2; \n For benchmark, mode=3 path=0.\n", argv[0]);
         return -1;
     }
     NanoDet detector = NanoDet("/home/csb3kor/workspace/OD-Nanodet/model/nanodet.param", "/home/csb3kor/workspace/OD-Nanodet/model/nanodet.bin", false);
-    int mode = atoi(argv[1]);
-    switch (mode) {
-    case 0:{
-        int cam_id = atoi(argv[2]);
-        webcam_demo(detector, cam_id);
-        break;
-        }
-    case 1:{
-        const char* images = argv[2];
-        image_demo(detector, images);
-        break;
-        }
-    case 2:{
-        const char* path = argv[2];
-        video_demo(detector, path);
-        break;
-        }
-    case 3:{
-        benchmark(detector);
-        break;
-        }
-    default:{
-        fprintf(stderr, "usage: %s [mode] [path]. \n For webcam mode=0, path is cam id; \n For image demo, mode=1, path=xxx/xxx/*.jpg; \n For video, mode=2; \n For benchmark, mode=3 path=0.\n", argv[0]);
-        break;
-        }
-    }
+    const char* path = argv[1];
+    video_demo(detector, path);
 }
