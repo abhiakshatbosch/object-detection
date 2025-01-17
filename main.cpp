@@ -13,8 +13,7 @@ struct object_rect {
     int height;
 };
 
-int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& effect_area)
-{
+int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& effect_area) {
     int w = src.cols;
     int h = src.rows;
     int dst_w = dst_size.width;
@@ -76,8 +75,7 @@ int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& e
     return 0;
 }
 
-const int color_list[80][3] =
-{
+const int color_list[80][3] = {
     //{255 ,255 ,255}, //bg
     {216 , 82 , 24},
     {236 ,176 , 31},
@@ -161,8 +159,7 @@ const int color_list[80][3] =
     {127 ,127 ,  0},
 };
 
-void draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, object_rect effect_roi)
-{
+void draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, object_rect effect_roi) {
     static const char* class_names[] = { "person", "bicycle", "car", "motorcycle", "airplane", "bus",
                                         "train", "truck", "boat", "traffic light", "fire hydrant",
                                         "stop sign", "parking meter", "bench", "bird", "cat", "dog",
@@ -188,8 +185,7 @@ void draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, object_
     float height_ratio = (float)src_h / (float)dst_h;
 
 
-    for (size_t i = 0; i < bboxes.size(); i++)
-    {
+    for (size_t i = 0; i < bboxes.size(); i++) {
         const BoxInfo& bbox = bboxes[i];
         cv::Scalar color = cv::Scalar(color_list[bbox.label][0], color_list[bbox.label][1], color_list[bbox.label][2]);
         //fprintf(stderr, "%d = %.5f at %.2f %.2f %.2f %.2f\n", bbox.label, bbox.score,
@@ -222,8 +218,7 @@ void draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, object_
 }
 
 
-int image_demo(NanoDet &detector, const char* imagepath)
-{
+int image_demo(NanoDet &detector, const char* imagepath) {
     // const char* imagepath = "D:/Dataset/coco/val2017/*.jpg";
 
     std::vector<cv::String> filenames;
@@ -231,8 +226,7 @@ int image_demo(NanoDet &detector, const char* imagepath)
     int height = detector.input_size[0];
     int width = detector.input_size[1];
 
-    for (auto img_name : filenames)
-    {
+    for (auto img_name : filenames) {
         cv::Mat image = cv::imread(img_name);
         if (image.empty())
         {
@@ -250,8 +244,7 @@ int image_demo(NanoDet &detector, const char* imagepath)
     return 0;
 }
 
-int webcam_demo(NanoDet& detector, int cam_id)
-{
+int webcam_demo(NanoDet& detector, int cam_id) {
     cv::Mat image;
     cv::VideoCapture cap(cam_id);
     int height = detector.input_size[0];
@@ -270,8 +263,7 @@ int webcam_demo(NanoDet& detector, int cam_id)
     return 0;
 }
 
-int video_demo(NanoDet& detector, const char* path)
-{
+int video_demo(NanoDet& detector, const char* path) {
     cv::Mat image;
     cv::VideoCapture cap(path); 
     std::cout << path << std::endl;
@@ -284,8 +276,7 @@ int video_demo(NanoDet& detector, const char* path)
     int width = detector.input_size[1];
     std::cout << height << " " << width;
 
-    while (true)
-    {
+    while (true) {
         std::cout << "Video Reading start" << std::endl;
         cap >> image;
         object_rect effect_roi;
@@ -300,8 +291,7 @@ int video_demo(NanoDet& detector, const char* path)
     return 0;
 }
 
-int benchmark(NanoDet& detector)
-{
+int benchmark(NanoDet& detector) {
     int loop_num = 100;
     int warm_up = 8;
     int height = detector.input_size[0];
@@ -335,17 +325,14 @@ int benchmark(NanoDet& detector)
 }
 
 
-int main(int argc, char** argv)
-{
-    if (argc != 3)
-    {
+int main(int argc, char** argv) {
+   if (argc != 3) {
         fprintf(stderr, "usage: %s [mode] [path]. \n For webcam mode=0, path is cam id; \n For image demo, mode=1, path=xxx/xxx/*.jpg; \n For video, mode=2; \n For benchmark, mode=3 path=0.\n", argv[0]);
         return -1;
     }
     NanoDet detector = NanoDet("/home/csb3kor/workspace/OD-Nanodet/model/nanodet.param", "/home/csb3kor/workspace/OD-Nanodet/model/nanodet.bin", false);
     int mode = atoi(argv[1]);
-    switch (mode)
-    {
+    switch (mode) {
     case 0:{
         int cam_id = atoi(argv[2]);
         webcam_demo(detector, cam_id);
