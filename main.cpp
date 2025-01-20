@@ -4,7 +4,7 @@
 #include <iostream>
 #include <net.h>
 #include "nanodet.h"
-#include <benchmark.h>
+//#include <benchmark.h>
 
 struct object_rect {
     int x;
@@ -245,38 +245,38 @@ int video_demo(NanoDet& detector, const char* path) {
     return 0;
 }
 
-int benchmark(NanoDet& detector) {
-    int loop_num = 100;
-    int warm_up = 8;
-    int height = detector.input_size[0];
-    int width = detector.input_size[1];
+// int benchmark(NanoDet& detector) {
+//     int loop_num = 100;
+//     int warm_up = 8;
+//     int height = detector.input_size[0];
+//     int width = detector.input_size[1];
 
-    double time_min = DBL_MAX;
-    double time_max = -DBL_MAX;
-    double time_avg = 0;
-    ncnn::Mat input = ncnn::Mat(height, width, 3);
-    input.fill(0.01f);
-    for (int i = 0; i < warm_up + loop_num; i++)
-    {
-        double start = ncnn::get_current_time();
-        ncnn::Extractor ex = detector.Net->create_extractor();
-        ex.input("data", input);
-        ncnn::Mat preds;
-        ex.extract("output", preds);
-        double end = ncnn::get_current_time();
+//     double time_min = DBL_MAX;
+//     double time_max = -DBL_MAX;
+//     double time_avg = 0;
+//     ncnn::Mat input = ncnn::Mat(height, width, 3);
+//     input.fill(0.01f);
+//     for (int i = 0; i < warm_up + loop_num; i++)
+//     {
+//         double start = ncnn::get_current_time();
+//         ncnn::Extractor ex = detector.Net->create_extractor();
+//         ex.input("data", input);
+//         ncnn::Mat preds;
+//         ex.extract("output", preds);
+//         double end = ncnn::get_current_time();
 
-        double time = end - start;
-        if (i >= warm_up)
-        {
-            time_min = (std::min)(time_min, time);
-            time_max = (std::max)(time_max, time);
-            time_avg += time;
-        }
-    }
-    time_avg /= loop_num;
-    fprintf(stderr, "%20s  min = %7.2f  max = %7.2f  avg = %7.2f\n", "nanodet", time_min, time_max, time_avg);
-    return 0;
-}
+//         double time = end - start;
+//         if (i >= warm_up)
+//         {
+//             time_min = (std::min)(time_min, time);
+//             time_max = (std::max)(time_max, time);
+//             time_avg += time;
+//         }
+//     }
+//     time_avg /= loop_num;
+//     fprintf(stderr, "%20s  min = %7.2f  max = %7.2f  avg = %7.2f\n", "nanodet", time_min, time_max, time_avg);
+//     return 0;
+// }
 
 
 int main(int argc, char** argv) {
