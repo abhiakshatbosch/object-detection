@@ -6,6 +6,8 @@
 #include "nanodet.h"
 //#include <benchmark.h>
 
+#define LOG(X) std::cout << X << std::endl
+
 struct object_rect {
     int x;
     int y;
@@ -18,7 +20,7 @@ int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& e
     int h = src.rows;
     int dst_w = dst_size.width;
     int dst_h = dst_size.height;
-    std::cout << "src: (" << h << ", " << w << ")" << std::endl;
+    //std::cout << "src: (" << h << ", " << w << ")" << std::endl;
     dst = cv::Mat(cv::Size(dst_w, dst_h), CV_8UC3, cv::Scalar(0));
 
     float ratio_src = w * 1.0 / h;
@@ -217,26 +219,27 @@ void draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, object_
     cv::imshow("image", image);
 }
 
-int video_demo(NanoDet& detector, const char* path) {
+int process_video(NanoDet& detector, const char* path) {
     cv::Mat image;
     cv::VideoCapture cap(path); 
-    std::cout << path << std::endl;
+    //std::cout << path << std::endl;
 
-    if( !cap.isOpened() )
-        std::cout << "Read Fail" << std::endl;
-
+    if( !cap.isOpened() ) {
+        fprintf(stderr, "Could Not Read Video.\n");
+        return 0;
+    }
 
     int height = detector.input_size[0];
     int width = detector.input_size[1];
-    std::cout << height << " " << width;
+    // std::cout << height << " " << width;
 
     while (true) {
-        std::cout << "Video Reading start" << std::endl;
+        //LOG("Video Reading start"); 
         cap >> image;
         object_rect effect_roi;
         cv::Mat resized_img;
         resize_uniform(image, resized_img, cv::Size(width, height), effect_roi);
-        std::cout << "Point 1" << std::endl;
+        //std::cout << "Point 1" << std::endl;
         auto results = detector.detect(resized_img, 0.4, 0.5);
         draw_bboxes(image, results, effect_roi);
         //cv::imshow("dst", results);
@@ -280,11 +283,13 @@ int video_demo(NanoDet& detector, const char* path) {
 
 
 int main(int argc, char** argv) {
-   if (argc != 2) {
-        fprintf(stderr, "usage: %s [mode] [path]. \n For webcam mode=0, path is cam id; \n For image demo, mode=1, path=xxx/xxx/*.jpg; \n For video, mode=2; \n For benchmark, mode=3 path=0.\n", argv[0]);
+   if (argc != 3) {
+        fprintf(stderr, "usage: %s  [path] [use_gpu]\n", argv[0]);
         return -1;
     }
-    NanoDet detector = NanoDet("/home/csb3kor/workspace/OD-Nanodet/model/nanodet.param", "/home/csb3kor/workspace/OD-Nanodet/model/nanodet.bin", false);
+    bool useGPU = argv[2] == "1";
+    NanoDet detector = NanoDet("/home/csb3kor/workspace/OD-Nanodet/model/nanodet.param", "/home/csb3kor/workspace/OD-Nanodet/model/nanodet.bin", useGPU);
     const char* path = argv[1];
-    video_demo(detector, path);
+    process_video(detector, path);
+    LOG("PROCESSING DONE");
 }

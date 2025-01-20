@@ -1,6 +1,9 @@
 #include "nanodet.h"
-#include <benchmark.h>
-// #include <iostream>
+//#include <benchmark.h>
+
+#include <iostream>
+
+#define LOG(X) std::cout<<X<<std::endl
 
 inline float fast_exp(float x)
 {
@@ -70,6 +73,8 @@ NanoDet::NanoDet(const char* param, const char* bin, bool useGPU)
 #endif
     this->Net->opt.use_vulkan_compute = this->hasGPU && useGPU;
     this->Net->opt.use_fp16_arithmetic = true;
+    LOG(this->hasGPU);
+    LOG( this->Net->opt.use_vulkan_compute);
     this->Net->load_param(param);
     this->Net->load_model(bin);
 }
@@ -86,6 +91,7 @@ void NanoDet::preprocess(cv::Mat& image, ncnn::Mat& in)
 
     in = ncnn::Mat::from_pixels(image.data, ncnn::Mat::PIXEL_BGR, img_w, img_h);
     //in = ncnn::Mat::from_pixels_resize(image.data, ncnn::Mat::PIXEL_BGR, img_w, img_h, this->input_width, this->input_height);
+
 
     const float mean_vals[3] = { 103.53f, 116.28f, 123.675f };
     const float norm_vals[3] = { 0.017429f, 0.017507f, 0.017125f };
@@ -115,6 +121,7 @@ std::vector<BoxInfo> NanoDet::detect(cv::Mat image, float score_threshold, float
     results.resize(this->num_class);
 
     ncnn::Mat out;
+   // LOG("POINT 2");
     ex2.extract("output", out);
     // printf("%d %d %d \n", out.w, out.h, out.c);
 
