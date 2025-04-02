@@ -4,16 +4,10 @@
 #include <iostream>
 #include <net.h>
 #include "nanodet.h"
-#include "helper.h"
+#include "nanodetlib.h"
 
 #define LOG(X) std::cout << X << std::endl
 
-struct object_rect {
-    int x;
-    int y;
-    int width;
-    int height;
-};
 
 int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& effect_area) {
     int w = src.cols;
@@ -77,89 +71,6 @@ int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& e
     return 0;
 }
 
-const int color_list[80][3] = {
-    //{255 ,255 ,255}, //bg
-    {216 , 82 , 24},
-    {236 ,176 , 31},
-    {125 , 46 ,141},
-    {118 ,171 , 47},
-    { 76 ,189 ,237},
-    {238 , 19 , 46},
-    { 76 , 76 , 76},
-    {153 ,153 ,153},
-    {255 ,  0 ,  0},
-    {255 ,127 ,  0},
-    {190 ,190 ,  0},
-    {  0 ,255 ,  0},
-    {  0 ,  0 ,255},
-    {170 ,  0 ,255},
-    { 84 , 84 ,  0},
-    { 84 ,170 ,  0},
-    { 84 ,255 ,  0},
-    {170 , 84 ,  0},
-    {170 ,170 ,  0},
-    {170 ,255 ,  0},
-    {255 , 84 ,  0},
-    {255 ,170 ,  0},
-    {255 ,255 ,  0},
-    {  0 , 84 ,127},
-    {  0 ,170 ,127},
-    {  0 ,255 ,127},
-    { 84 ,  0 ,127},
-    { 84 , 84 ,127},
-    { 84 ,170 ,127},
-    { 84 ,255 ,127},
-    {170 ,  0 ,127},
-    {170 , 84 ,127},
-    {170 ,170 ,127},
-    {170 ,255 ,127},
-    {255 ,  0 ,127},
-    {255 , 84 ,127},
-    {255 ,170 ,127},
-    {255 ,255 ,127},
-    {  0 , 84 ,255},
-    {  0 ,170 ,255},
-    {  0 ,255 ,255},
-    { 84 ,  0 ,255},
-    { 84 , 84 ,255},
-    { 84 ,170 ,255},
-    { 84 ,255 ,255},
-    {170 ,  0 ,255},
-    {170 , 84 ,255},
-    {170 ,170 ,255},
-    {170 ,255 ,255},
-    {255 ,  0 ,255},
-    {255 , 84 ,255},
-    {255 ,170 ,255},
-    { 42 ,  0 ,  0},
-    { 84 ,  0 ,  0},
-    {127 ,  0 ,  0},
-    {170 ,  0 ,  0},
-    {212 ,  0 ,  0},
-    {255 ,  0 ,  0},
-    {  0 , 42 ,  0},
-    {  0 , 84 ,  0},
-    {  0 ,127 ,  0},
-    {  0 ,170 ,  0},
-    {  0 ,212 ,  0},
-    {  0 ,255 ,  0},
-    {  0 ,  0 , 42},
-    {  0 ,  0 , 84},
-    {  0 ,  0 ,127},
-    {  0 ,  0 ,170},
-    {  0 ,  0 ,212},
-    {  0 ,  0 ,255},
-    {  0 ,  0 ,  0},
-    { 36 , 36 , 36},
-    { 72 , 72 , 72},
-    {109 ,109 ,109},
-    {145 ,145 ,145},
-    {182 ,182 ,182},
-    {218 ,218 ,218},
-    {  0 ,113 ,188},
-    { 80 ,182 ,188},
-    {127 ,127 ,  0},
-};
 
 cv::Mat draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, object_rect effect_roi) {
     static const char* class_names[] = { "person", "bicycle", "car", "motorcycle", "airplane", "bus",
@@ -190,8 +101,6 @@ cv::Mat draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, obje
     for (size_t i = 0; i < bboxes.size(); i++) {
         const BoxInfo& bbox = bboxes[i];
         cv::Scalar color = cv::Scalar(color_list[bbox.label][0], color_list[bbox.label][1], color_list[bbox.label][2]);
-        //fprintf(stderr, "%d = %.5f at %.2f %.2f %.2f %.2f\n", bbox.label, bbox.score,
-        //    bbox.x1, bbox.y1, bbox.x2, bbox.y2);
 
         cv::rectangle(image, cv::Rect(cv::Point((bbox.x1 - effect_roi.x) * width_ratio, (bbox.y1 - effect_roi.y) * height_ratio),
                                       cv::Point((bbox.x2 - effect_roi.x) * width_ratio, (bbox.y2 - effect_roi.y) * height_ratio)), color);
@@ -217,41 +126,31 @@ cv::Mat draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, obje
     }
 
     return image;
-    //cv::imshow("image", image);
-}
-
-int process_video(NanoDet& detector, const char* path) {
-    cv::Mat image;
-    cv::VideoCapture cap(path); 
-    //std::cout << path << std::endl;
-
-    if( !cap.isOpened() ) {
-        fprintf(stderr, "Could Not Read Video.\n");
-        return 0;
-    }
-
-    int height = detector.input_size[0];
-    int width = detector.input_size[1];
-    // std::cout << height << " " << width;
-
-    while (true) {
-        //LOG("Video Reading start"); 
-        cap >> image;
-        object_rect effect_roi;
-        cv::Mat resized_img;
-        resize_uniform(image, resized_img, cv::Size(width, height), effect_roi);
-        //std::cout << "Point 1" << std::endl;
-        auto results = detector.detect(resized_img, 0.4, 0.5);
-        cv::Mat result_frame = draw_bboxes(image, results, effect_roi); // -> Result frame
-        cv::imshow("dst", result_frame);
-        cv::waitKey(1);
-    }
-    return 0;
 }
 
 
-void process(char* path, bool useGPU) {
-    NanoDet detector = NanoDet("/home/csb3kor/workspace/OD-Nanodet/model/nanodet.param", "/home/csb3kor/workspace/OD-Nanodet/model/nanodet.bin", useGPU);
-    process_video(detector, path);
-    LOG("PROCESSING DONE");
-}
+// void process(char* path, bool useGPU) {
+//     NanoDet detector = NanoDet("/home/csb3kor/workspace/OD-Nanodet/model/nanodet.param", "/home/csb3kor/workspace/OD-Nanodet/model/nanodet.bin", useGPU);
+//     cv::Mat image;
+//     cv::VideoCapture cap(path); 
+
+//     if( !cap.isOpened() ) {
+//         fprintf(stderr, "Could Not Read Video.\n");
+//         return ;
+//     }
+
+//     int height = detector.input_size[0];
+//     int width = detector.input_size[1];
+
+//     while (true) {
+//         cap >> image;
+//         object_rect effect_roi;
+//         cv::Mat resized_img;
+//         resize_uniform(image, resized_img, cv::Size(width, height), effect_roi);
+//         auto results = detector.detect(resized_img, 0.4, 0.5);
+//         cv::Mat result_frame = draw_bboxes(image, results, effect_roi);
+//         cv::imshow("dst", result_frame);
+//         cv::waitKey(1);
+//     }
+//     LOG("PROCESSING DONE");
+// }
