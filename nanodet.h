@@ -1,8 +1,3 @@
-//
-// Create by RangiLyu
-// 2020 / 10 / 2
-//
-
 #ifndef NANODET_H
 #define NANODET_H
 
@@ -69,4 +64,4 @@ private:
 };
 
 
-#endif //NANODET_H
+#endif 

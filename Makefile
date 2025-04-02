@@ -123,6 +123,33 @@ nanodet_od/fast:
 	$(MAKE) -f CMakeFiles/nanodet_od.dir/build.make CMakeFiles/nanodet_od.dir/build
 .PHONY : nanodet_od/fast
 
+helper.o: helper.cpp.o
+
+.PHONY : helper.o
+
+# target to build an object file
+helper.cpp.o:
+	$(MAKE) -f CMakeFiles/nanodet_od.dir/build.make CMakeFiles/nanodet_od.dir/helper.cpp.o
+.PHONY : helper.cpp.o
+
+helper.i: helper.cpp.i
+
+.PHONY : helper.i
+
+# target to preprocess a source file
+helper.cpp.i:
+	$(MAKE) -f CMakeFiles/nanodet_od.dir/build.make CMakeFiles/nanodet_od.dir/helper.cpp.i
+.PHONY : helper.cpp.i
+
+helper.s: helper.cpp.s
+
+.PHONY : helper.s
+
+# target to generate assembly for a file
+helper.cpp.s:
+	$(MAKE) -f CMakeFiles/nanodet_od.dir/build.make CMakeFiles/nanodet_od.dir/helper.cpp.s
+.PHONY : helper.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -186,6 +213,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... nanodet_od"
+	@echo "... helper.o"
+	@echo "... helper.i"
+	@echo "... helper.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

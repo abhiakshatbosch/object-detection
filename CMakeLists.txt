@@ -27,7 +27,7 @@ include_directories(
 )
 
 
-add_executable(nanodet_od main.cpp nanodet.cpp)
+add_executable(nanodet_od main.cpp nanodet.cpp helper.cpp)
 
 target_link_libraries(
     nanodet_od
