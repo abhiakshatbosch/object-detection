@@ -1,5 +1,8 @@
 #include "nanodetlib.h"
 
+// Function to convert opengl texture to cv::Mat
+// Function to cinvert cv::Mat to opengl texture
+
 int main() {
     bool useGPU = false;
     char* path_video = "/home/csb3kor/workspace/OD-Nanodet/sample/demo-tiny.mp4";
@@ -9,13 +12,15 @@ int main() {
     cv::Mat image;
     cv::VideoCapture cap(path_video); 
 
-    if( !cap.isOpened() ) {
+    if (!cap.isOpened()) {
         fprintf(stderr, "Could Not Read Video.\n");
         return 0;
     }
 
     int height = detector.input_size[0];
     int width = detector.input_size[1];
+
+    cv::namedWindow("Detections", cv::WINDOW_AUTOSIZE);
 
     while (true) {
         cap >> image;
@@ -24,8 +29,12 @@ int main() {
         resize_uniform(image, resized_img, cv::Size(width, height), effect_roi);
         auto results = detector.detect(resized_img, 0.4, 0.5);
         cv::Mat result_frame = draw_bboxes(image, results, effect_roi);
-        cv::imshow("dst", result_frame);
-        cv::waitKey(1);
+        cv::imshow("Detections", result_frame);
+        if (cv::waitKey(10) == 'q') {
+            break;
+        }
     }
+    cap.release();
+    cv::destroyAllWindows();
     return 0;
 }

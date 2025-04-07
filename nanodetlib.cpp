@@ -39,13 +39,13 @@ int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& e
         return 0;
     }
 
-    std::cout << "tmp: (" << tmp_h << ", " << tmp_w << ")" << std::endl;
+    //std::cout << "tmp: (" << tmp_h << ", " << tmp_w << ")" << std::endl;
     cv::Mat tmp;
     cv::resize(src, tmp, cv::Size(tmp_w, tmp_h));
 
     if (tmp_w != dst_w) {
         int index_w = floor((dst_w - tmp_w) / 2.0);
-        std::cout << "index_w: " << index_w << std::endl;
+        //std::cout << "index_w: " << index_w << std::endl;
         for (int i = 0; i < dst_h; i++) {
             memcpy(dst.data + i * dst_w * 3 + index_w * 3, tmp.data + i * tmp_w * 3, tmp_w * 3);
         }
@@ -56,7 +56,7 @@ int resize_uniform(cv::Mat& src, cv::Mat& dst, cv::Size dst_size, object_rect& e
     }
     else if (tmp_h != dst_h) {
         int index_h = floor((dst_h - tmp_h) / 2.0);
-        std::cout << "index_h: " << index_h << std::endl;
+        //std::cout << "index_h: " << index_h << std::endl;
         memcpy(dst.data + index_h * dst_w * 3, tmp.data, tmp_w * tmp_h * 3);
         effect_area.x = 0;
         effect_area.y = index_h;
@@ -129,28 +129,3 @@ cv::Mat draw_bboxes(const cv::Mat& bgr, const std::vector<BoxInfo>& bboxes, obje
 }
 
 
-// void process(char* path, bool useGPU) {
-//     NanoDet detector = NanoDet("/home/csb3kor/workspace/OD-Nanodet/model/nanodet.param", "/home/csb3kor/workspace/OD-Nanodet/model/nanodet.bin", useGPU);
-//     cv::Mat image;
-//     cv::VideoCapture cap(path); 
-
-//     if( !cap.isOpened() ) {
-//         fprintf(stderr, "Could Not Read Video.\n");
-//         return ;
-//     }
-
-//     int height = detector.input_size[0];
-//     int width = detector.input_size[1];
-
-//     while (true) {
-//         cap >> image;
-//         object_rect effect_roi;
-//         cv::Mat resized_img;
-//         resize_uniform(image, resized_img, cv::Size(width, height), effect_roi);
-//         auto results = detector.detect(resized_img, 0.4, 0.5);
-//         cv::Mat result_frame = draw_bboxes(image, results, effect_roi);
-//         cv::imshow("dst", result_frame);
-//         cv::waitKey(1);
-//     }
-//     LOG("PROCESSING DONE");
-// }

@@ -73,8 +73,8 @@ NanoDet::NanoDet(const char* param, const char* bin, bool useGPU)
 #endif
     this->Net->opt.use_vulkan_compute = this->hasGPU && useGPU;
     this->Net->opt.use_fp16_arithmetic = true;
-    LOG(this->hasGPU);
-    LOG( this->Net->opt.use_vulkan_compute);
+    //LOG(this->hasGPU);
+    //LOG( this->Net->opt.use_vulkan_compute);
     this->Net->load_param(param);
     this->Net->load_model(bin);
 }
